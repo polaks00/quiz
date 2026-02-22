@@ -21,9 +21,9 @@
 
     void Configuration::render() 
     {
-        SDL_RenderClear(renderer);
+        
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+        
     }
 
     SDL_Texture* Configuration::loadTexture(const std::string& path) {

@@ -30,10 +30,10 @@ int main( int argc, char *argv[])
     TTF_Font* font = TTF_OpenFont("assets/font.ttf",32);
     
     Configuration configuration(window, renderer, "test.jpg");
-    configuration.render();
+    
     
     Menu menu(renderer,font);
-    menu.render();
+    
 
     SDL_Event windowEvent;
     int result = 0;
@@ -52,7 +52,11 @@ int main( int argc, char *argv[])
             }
             
         }
-        
+        SDL_SetRenderDrawColor(renderer,0,0,0,255);
+        SDL_RenderClear(renderer);
+        configuration.render();
+        menu.render();
+        SDL_RenderPresent(renderer);
     }
 
     SDL_DestroyRenderer(renderer);
