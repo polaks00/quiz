@@ -29,7 +29,7 @@ int main( int argc, char *argv[])
 
     TTF_Font* font = TTF_OpenFont("assets/font.ttf",32);
     
-    Configuration configuration(window, renderer, "graphic/audi-f1-prototyp-scaled.jpg");
+    Configuration configuration(window, renderer, "test.jpg");
     configuration.render();
     
     Menu menu(renderer,font);
