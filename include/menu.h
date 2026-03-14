@@ -8,8 +8,16 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <filesystem>
 #include "configuration.h"
 
+namespace fs = std::filesystem;
+
+enum class GameState {
+    MAIN_MENU,
+    CATEGORY_SELECT,
+    QUIZ_ACTIVE
+};
 
 struct UI_Button
 {
@@ -22,14 +30,16 @@ struct UI_Button
 class Menu {
 private:
     SDL_Renderer* renderer;
-    std::vector<UI_Button> buttons;
-    void createButton(int x, int y, int w, int h, SDL_Color color, std::string text, TTF_Font* font);
+    std::vector<UI_Button> mainButtons;
+    std::vector<UI_Button> categoryButtons;
+    void createButton(std::vector<UI_Button> &button_localization, int x, int y, int w, int h, SDL_Color color, std::string text, TTF_Font* font);
 
 public:
     Menu(SDL_Renderer* renderer_quiz, TTF_Font* font);
     ~Menu();
-    void render();
-    int handleEvents(SDL_Event& event);
+    void render(GameState currentState); 
+    int handleEvents(SDL_Event& event, GameState& currentState);
+    std::vector<std::string> getCategoriesFromData();
 
 private:
     bool isMouseOverButton(int mouseX, int mouseY, const SDL_Rect& buttonRect);

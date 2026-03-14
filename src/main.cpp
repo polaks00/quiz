@@ -7,7 +7,11 @@
 #include "menu.h"
 
 
+
 const int WIDTH =1920, HEIGHT = 1080;
+
+
+
 
 int main( int argc, char *argv[])
 {
@@ -37,6 +41,8 @@ int main( int argc, char *argv[])
 
     SDL_Event windowEvent;
     int result = 0;
+
+    GameState currentState = GameState::MAIN_MENU;
     
     while(true)
     {
@@ -44,18 +50,22 @@ int main( int argc, char *argv[])
         {
             if(SDL_QUIT == windowEvent.type)
             break;
-            result = menu.handleEvents(windowEvent);
+            result = menu.handleEvents(windowEvent, currentState);
             if(result)
             {
                 SDL_HideWindow(window);
                 printf("ez\n"); // zadzialalo klikniecie, trzeba terz pobrac liczbe zdjec
+                break;
             }
             
         }
         SDL_SetRenderDrawColor(renderer,0,0,0,255);
         SDL_RenderClear(renderer);
         configuration.render();
-        menu.render();
+        if (currentState == GameState::MAIN_MENU || currentState == GameState::CATEGORY_SELECT) 
+        {
+            menu.render(currentState);
+        }
         SDL_RenderPresent(renderer);
     }
 
