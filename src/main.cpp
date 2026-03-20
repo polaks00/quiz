@@ -62,10 +62,14 @@ int main( int argc, char *argv[])
                     break;
                 }
             }
-            if (currentState == GameState::QUIZ_ACTIVE)
+            else
             {
-                quiz.handleEvents(windowEvent);
+                if (currentState == GameState::QUIZ_ACTIVE)
+                {
+                    quiz.handleEvents(windowEvent);
+                }
             }
+            
             
 
             

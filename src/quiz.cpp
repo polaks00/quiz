@@ -32,7 +32,8 @@ bool QuizEngine::loadCategory(const std::string& categoryName) {
 void QuizEngine::nextDuel() {
     hasActiveDuel = false;
 
-    if (participants.size() < 2) {
+    if (participants.size() < 2) 
+    {
         if (!participants.empty()) 
         {
             winnersCircle.push_back(participants.back());
@@ -50,10 +51,10 @@ void QuizEngine::nextDuel() {
     }
 
     
-    if (participants.size() >= 2) {
+    if (participants.size() >= 2) 
+    {
         currentLeft = participants[participants.size() - 1];
         currentRight = participants[participants.size() - 2];
-        printf("taki rozmiar part %d\n", participants.size());
         hasActiveDuel = true;
     }
 }
@@ -64,7 +65,6 @@ void QuizEngine::selectWinner(int index) {
 
     participants.pop_back();
     participants.pop_back();
-
     if (!isFinished()) nextDuel();
 }
 
