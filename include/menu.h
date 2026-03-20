@@ -32,12 +32,14 @@ struct UI_Button
 class Menu {
 private:
     SDL_Renderer* renderer;
+    SDL_Texture* titleTexture;
+    SDL_Rect titleRect;
     std::vector<UI_Button> mainButtons;
     std::vector<UI_Button> categoryButtons;
     void createButton(std::vector<UI_Button> &button_localization, int x, int y, int w, int h, SDL_Color color, std::string text, TTF_Font* font);
 
 public:
-    Menu(SDL_Renderer* renderer_quiz, TTF_Font* font);
+    Menu(SDL_Renderer* renderer_quiz, TTF_Font* font, TTF_Font* title_font);
     ~Menu();
     void render(GameState currentState); 
     int handleEvents(SDL_Event& event, GameState& currentState, QuizEngine* quiz);

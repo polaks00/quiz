@@ -33,11 +33,11 @@ int main( int argc, char *argv[])
         }
 
     TTF_Font* font = TTF_OpenFont("assets/font.ttf",32);
+    TTF_Font* title_font = TTF_OpenFont("assets/font.ttf",80);
+    Configuration configuration(renderer);
     
-    Configuration configuration(window, renderer, "test.jpg");
     
-    
-    Menu menu(renderer,font);
+    Menu menu(renderer,font,title_font);
     QuizEngine quiz(renderer, font);
     
 

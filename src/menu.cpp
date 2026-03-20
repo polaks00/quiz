@@ -2,7 +2,7 @@
 #include "quiz.h"
 
 
-Menu::Menu(SDL_Renderer* renderer_quiz, TTF_Font* font) : renderer(renderer_quiz)  
+Menu::Menu(SDL_Renderer* renderer_quiz, TTF_Font* font, TTF_Font* title_font) : renderer(renderer_quiz)  
 {
     SDL_Color red = {231,76,60,255};  
     createButton(mainButtons,810,600,300,80,red,"ZAMKNIJ",font);
@@ -16,7 +16,18 @@ Menu::Menu(SDL_Renderer* renderer_quiz, TTF_Font* font) : renderer(renderer_quiz
     int currentY = startY + (i * spacingY);
     createButton(categoryButtons, startX, currentY, 400, 80, red, folderNames[i], font);
     }
-    createButton(categoryButtons, 810, 800, 300, 60, red, "ANULUJ", font);  
+    createButton(categoryButtons, 810, 800, 300, 60, red, "ANULUJ", font);
+
+
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Surface* titleSurf = TTF_RenderText_Blended(title_font, "PORA NA QUIZ :)", white);
+    titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurf);
+    int tw, th;
+    SDL_QueryTexture(titleTexture, NULL, NULL, &tw, &th);
+    // Skalujemy tytuł, żeby był np. 2x większy niż przyciski
+    titleRect = { 960 - (tw * 2) / 2, 100, tw * 2, th * 2 };
+    
+    SDL_FreeSurface(titleSurf);  
 }
 void Menu::createButton(std::vector<UI_Button> &button_localization, int x, int y, int w, int h, SDL_Color color, std::string text, TTF_Font* font)
 {
@@ -52,6 +63,7 @@ void Menu::render(GameState currentState)
             SDL_Rect textPos = {btn.rect.x + (btn.rect.w - tw)/2, btn.rect.y + (btn.rect.h - th)/2, tw, th};
             SDL_RenderCopy(renderer, btn.textTexture,NULL,&textPos);
         }
+        SDL_RenderCopy(renderer, titleTexture, NULL, &titleRect);
     }
     if(currentState == GameState::CATEGORY_SELECT)
     {
