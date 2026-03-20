@@ -38,7 +38,7 @@ int main( int argc, char *argv[])
     
     
     Menu menu(renderer,font);
-    QuizEngine quiz(renderer);
+    QuizEngine quiz(renderer, font);
     
 
     SDL_Event windowEvent;
@@ -54,11 +54,12 @@ int main( int argc, char *argv[])
             break;
             if (currentState == GameState::MAIN_MENU || currentState == GameState::CATEGORY_SELECT) 
             {
+                
                 result = menu.handleEvents(windowEvent, currentState, &quiz);
                 if(result)
                 {
                     SDL_HideWindow(window);
-                    printf("ez\n"); // zadzialalo klikniecie, trzeba terz pobrac liczbe zdjec
+                    printf("ez\n"); 
                     break;
                 }
             }
@@ -66,7 +67,7 @@ int main( int argc, char *argv[])
             {
                 if (currentState == GameState::QUIZ_ACTIVE)
                 {
-                    quiz.handleEvents(windowEvent);
+                    quiz.handleEvents(windowEvent, currentState);
                 }
             }
             
@@ -81,7 +82,7 @@ int main( int argc, char *argv[])
         {
             menu.render(currentState);
         }
-        if (currentState == GameState::QUIZ_ACTIVE) 
+        else if (currentState == GameState::QUIZ_ACTIVE) 
         {
             quiz.render();
         }

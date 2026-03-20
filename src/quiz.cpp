@@ -1,7 +1,7 @@
 #include "quiz.h"
 #include <iostream>
 
-QuizEngine::QuizEngine(SDL_Renderer* r) : renderer(r) {}
+QuizEngine::QuizEngine(SDL_Renderer* r, TTF_Font* f) : renderer(r), font(f) {}
 QuizEngine::~QuizEngine() {}
 
 bool QuizEngine::loadCategory(const std::string& categoryName) {
@@ -42,7 +42,11 @@ void QuizEngine::nextDuel() {
         if (winnersCircle.size() >= 2) 
         {
             participants = winnersCircle;
+            std::random_device rd;
+            std::mt19937 g(rd());
+            std::shuffle(participants.begin(), participants.end(), g);
             winnersCircle.clear();
+            round_number++;
         } 
         else 
         {
@@ -65,34 +69,82 @@ void QuizEngine::selectWinner(int index) {
 
     participants.pop_back();
     participants.pop_back();
-    if (!isFinished()) nextDuel();
+    
+    if (participants.empty() && winnersCircle.size() == 1) 
+    {
+        finalWinner = winnersCircle[0];
+        showFinalWinner = true;
+        hasActiveDuel = false;
+    } 
+    else 
+    {
+        nextDuel();
+    }
 }
 
 void QuizEngine::render() {
-    if (!hasActiveDuel) return;
+    std::string text_to_show="";
+    if (showFinalWinner) {
+        SDL_Rect centerRect = { 610, 240, 700, 600 }; 
+        SDL_RenderCopy(renderer, finalWinner.texture, NULL, &centerRect);
 
-    if (currentLeft.texture && currentRight.texture) {
+        // Napis ZWYCIĘZCA
+        text_to_show = "TOP1!";
         
-
+    } 
+    else if (hasActiveDuel) 
+    {
         SDL_RenderCopy(renderer, currentLeft.texture, NULL, &rectL);
         SDL_RenderCopy(renderer, currentRight.texture, NULL, &rectR);
-    } else {
-        std::cerr << "Błąd: Próba narysowania pustej tekstury!" << std::endl;
+        text_to_show = "ROUND " + std::to_string(round_number);
     }
+    SDL_Color gold = {255, 215, 0, 255};
+    SDL_Surface* surf = TTF_RenderText_Blended(font, text_to_show.c_str(), gold);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
+    
+    int tw, th;
+    SDL_QueryTexture(tex, NULL, NULL, &tw, &th);
+    SDL_Rect textPos = { 960 - tw/2, 100, tw, th };
+    
+    SDL_RenderCopy(renderer, tex, NULL, &textPos);
+    
+    SDL_FreeSurface(surf);
+    SDL_DestroyTexture(tex); 
 }
-
-void QuizEngine::handleEvents(SDL_Event& event) {
+void QuizEngine::handleEvents(SDL_Event& event, GameState& currentState) {
     if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
-
-        if (mouseX >= rectL.x && mouseX <= (rectL.x + rectL.w) &&
-            mouseY >= rectL.y && mouseY <= (rectL.y + rectL.h)) {
-            selectWinner(0); // 0 = Lewy
-        } 
-        else if (mouseX >= rectR.x && mouseX <= (rectR.x + rectR.w) &&
-                 mouseY >= rectR.y && mouseY <= (rectR.y + rectR.h)) {
-            selectWinner(1); // 1 = Prawy
+        if(showFinalWinner)
+        {
+            currentState = GameState::MAIN_MENU;
+            reset();
         }
+        else
+        {
+            if (mouseX >= rectL.x && mouseX <= (rectL.x + rectL.w) &&
+                mouseY >= rectL.y && mouseY <= (rectL.y + rectL.h)) {
+                selectWinner(0); // 0 = Lewy
+            } 
+            else if (mouseX >= rectR.x && mouseX <= (rectR.x + rectR.w) &&
+                     mouseY >= rectR.y && mouseY <= (rectR.y + rectR.h)) {
+                selectWinner(1); // 1 = Prawy
+            }
+        
+        }
+        
     }
+}
+
+void QuizEngine::reset() {
+    for(auto& p : participants) SDL_DestroyTexture(p.texture);
+    for(auto& w : winnersCircle) SDL_DestroyTexture(w.texture);
+    
+    SDL_DestroyTexture(finalWinner.texture);
+
+    round_number = 1;
+    participants.clear();
+    winnersCircle.clear();
+    showFinalWinner = false;
+    hasActiveDuel = false;
 }
