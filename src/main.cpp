@@ -5,6 +5,7 @@
 #include <iostream>
 #include "configuration.h"
 #include "menu.h"
+#include "quiz.h"
 
 
 
@@ -37,6 +38,7 @@ int main( int argc, char *argv[])
     
     
     Menu menu(renderer,font);
+    QuizEngine quiz(renderer);
     
 
     SDL_Event windowEvent;
@@ -50,13 +52,22 @@ int main( int argc, char *argv[])
         {
             if(SDL_QUIT == windowEvent.type)
             break;
-            result = menu.handleEvents(windowEvent, currentState);
-            if(result)
+            if (currentState == GameState::MAIN_MENU || currentState == GameState::CATEGORY_SELECT) 
             {
-                SDL_HideWindow(window);
-                printf("ez\n"); // zadzialalo klikniecie, trzeba terz pobrac liczbe zdjec
-                break;
+                result = menu.handleEvents(windowEvent, currentState, &quiz);
+                if(result)
+                {
+                    SDL_HideWindow(window);
+                    printf("ez\n"); // zadzialalo klikniecie, trzeba terz pobrac liczbe zdjec
+                    break;
+                }
             }
+            if (currentState == GameState::QUIZ_ACTIVE)
+            {
+                quiz.handleEvents(windowEvent);
+            }
+            
+
             
         }
         SDL_SetRenderDrawColor(renderer,0,0,0,255);
@@ -65,6 +76,10 @@ int main( int argc, char *argv[])
         if (currentState == GameState::MAIN_MENU || currentState == GameState::CATEGORY_SELECT) 
         {
             menu.render(currentState);
+        }
+        if (currentState == GameState::QUIZ_ACTIVE) 
+        {
+            quiz.render();
         }
         SDL_RenderPresent(renderer);
     }

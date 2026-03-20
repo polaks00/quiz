@@ -1,5 +1,5 @@
 #include "menu.h"
-
+#include "quiz.h"
 
 
 Menu::Menu(SDL_Renderer* renderer_quiz, TTF_Font* font) : renderer(renderer_quiz)  
@@ -71,7 +71,7 @@ void Menu::render(GameState currentState)
     
     
 }
-int Menu::handleEvents(SDL_Event& event, GameState& currentState) {
+int Menu::handleEvents(SDL_Event& event, GameState& currentState, QuizEngine* quiz) {
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int x, y;
             SDL_GetMouseState(&x, &y);
@@ -102,10 +102,22 @@ int Menu::handleEvents(SDL_Event& event, GameState& currentState) {
                         {
                             currentState = GameState::MAIN_MENU;
                         }
+                        else
+                        {
+                            currentState = GameState::QUIZ_ACTIVE;
+                            quiz->loadCategory(btn.text);
+                        }
                     }
                 }
             }
-            
+            /*if (currentState == GameState::QUIZ_ACTIVE) 
+            {
+                if (event.type == SDL_KEYDOWN) 
+                {
+                    if (event.key.keysym.sym == SDLK_LEFT) quiz->selectWinner(0);
+                    if (event.key.keysym.sym == SDLK_RIGHT) quiz->selectWinner(1);
+                }
+            }  */                       
         }
         return 0;
     }

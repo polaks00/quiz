@@ -23,6 +23,9 @@ public:
     void nextDuel();
     void selectWinner(int index); // 0 dla lewego, 1 dla prawego
     void render();
+    void handleEvents(SDL_Event& event);
+
+    
 
     bool isFinished() { return participants.size() < 2 && winnersCircle.empty(); }
 
@@ -30,8 +33,11 @@ private:
     SDL_Renderer* renderer;
     std::vector<Candidate> participants;   // Osoby czekające na swoją kolej w rundzie
     std::vector<Candidate> winnersCircle;  // Zwycięzcy aktualnej rundy
-    Candidate* currentLeft = nullptr;
-    Candidate* currentRight = nullptr;
+    Candidate currentLeft;
+    Candidate currentRight;
+    bool hasActiveDuel = false;
+    SDL_Rect rectL = { 100, 200, 700, 600 };
+    SDL_Rect rectR = { 1120, 200, 700, 600 };
 
     void clearTextures(std::vector<Candidate>& list);
 };

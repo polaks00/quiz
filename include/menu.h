@@ -13,6 +13,8 @@
 
 namespace fs = std::filesystem;
 
+class QuizEngine;
+
 enum class GameState {
     MAIN_MENU,
     CATEGORY_SELECT,
@@ -38,7 +40,7 @@ public:
     Menu(SDL_Renderer* renderer_quiz, TTF_Font* font);
     ~Menu();
     void render(GameState currentState); 
-    int handleEvents(SDL_Event& event, GameState& currentState);
+    int handleEvents(SDL_Event& event, GameState& currentState, QuizEngine* quiz);
     std::vector<std::string> getCategoriesFromData();
 
 private:

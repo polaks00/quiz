@@ -2,12 +2,13 @@
 #include <iostream>
 
 QuizEngine::QuizEngine(SDL_Renderer* r) : renderer(r) {}
+QuizEngine::~QuizEngine() {}
 
 bool QuizEngine::loadCategory(const std::string& categoryName) {
     std::string path = "/home/polaks00/uwufufu/quiz/data/" + categoryName;
     participants.clear();
     winnersCircle.clear();
-
+    
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         std::string ext = entry.path().extension().string();
         if (ext == ".jpg" || ext == ".png") {
@@ -17,6 +18,7 @@ bool QuizEngine::loadCategory(const std::string& categoryName) {
             participants.push_back({entry.path().string(), tex});
         }
     }
+    
 
     // Mieszamy zawodników na start
     std::random_device rd;
@@ -28,27 +30,38 @@ bool QuizEngine::loadCategory(const std::string& categoryName) {
 }
 
 void QuizEngine::nextDuel() {
+    hasActiveDuel = false;
+
+    if (participants.size() < 2) {
+        if (!participants.empty()) 
+        {
+            winnersCircle.push_back(participants.back());
+            participants.pop_back();
+        }
+        if (winnersCircle.size() >= 2) 
+        {
+            participants = winnersCircle;
+            winnersCircle.clear();
+        } 
+        else 
+        {
+            return; 
+        }
+    }
+
+    
     if (participants.size() >= 2) {
-        currentLeft = &participants[participants.size() - 1];
-        currentRight = &participants[participants.size() - 2];
-    } else if (participants.size() == 1) {
-        // Jeśli został jeden, przechodzi automatycznie do wyższej rundy
-        winnersCircle.push_back(participants.back());
-        participants.pop_back();
-        nextDuel(); // Rekurencja, aby sprawdzić czy nowa runda rusza
-    } else if (!winnersCircle.empty()) {
-        // Nowa runda!
-        participants = winnersCircle;
-        winnersCircle.clear();
-        nextDuel();
+        currentLeft = participants[participants.size() - 1];
+        currentRight = participants[participants.size() - 2];
+        printf("taki rozmiar part %d\n", participants.size());
+        hasActiveDuel = true;
     }
 }
 
 void QuizEngine::selectWinner(int index) {
-    if (index == 0) winnersCircle.push_back(*currentLeft);
-    else winnersCircle.push_back(*currentRight);
+    if (index == 0) winnersCircle.push_back(currentLeft);
+    else winnersCircle.push_back(currentRight);
 
-    // Usuwamy obu z obecnej kolejki (pobraliśmy ich z końca wektora)
     participants.pop_back();
     participants.pop_back();
 
@@ -56,12 +69,30 @@ void QuizEngine::selectWinner(int index) {
 }
 
 void QuizEngine::render() {
-    if (!currentLeft || !currentRight) return;
+    if (!hasActiveDuel) return;
 
-    // Wyświetlanie obrazków obok siebie (uproszczone skalowanie)
-    SDL_Rect rectL = { 100, 240, 800, 600 };
-    SDL_Rect rectR = { 1020, 240, 800, 600 };
+    if (currentLeft.texture && currentRight.texture) {
+        
 
-    SDL_RenderCopy(renderer, currentLeft->texture, NULL, &rectL);
-    SDL_RenderCopy(renderer, currentRight->texture, NULL, &rectR);
+        SDL_RenderCopy(renderer, currentLeft.texture, NULL, &rectL);
+        SDL_RenderCopy(renderer, currentRight.texture, NULL, &rectR);
+    } else {
+        std::cerr << "Błąd: Próba narysowania pustej tekstury!" << std::endl;
+    }
+}
+
+void QuizEngine::handleEvents(SDL_Event& event) {
+    if (event.type == SDL_MOUSEBUTTONDOWN) {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+
+        if (mouseX >= rectL.x && mouseX <= (rectL.x + rectL.w) &&
+            mouseY >= rectL.y && mouseY <= (rectL.y + rectL.h)) {
+            selectWinner(0); // 0 = Lewy
+        } 
+        else if (mouseX >= rectR.x && mouseX <= (rectR.x + rectR.w) &&
+                 mouseY >= rectR.y && mouseY <= (rectR.y + rectR.h)) {
+            selectWinner(1); // 1 = Prawy
+        }
+    }
 }
